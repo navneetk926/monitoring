@@ -1,0 +1,10 @@
+import org.springframework.stereotype.Service;
+
+@Service
+public class LoggingPayloadEventHandler implements PayloadEventHandler {
+
+    @Override
+    public void handleEvent(CustomPayloadEvent event) {
+        System.out.println("Logging Payload Event: " + event);
+    }
+}
