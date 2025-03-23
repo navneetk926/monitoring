@@ -1,0 +1,11 @@
+import org.springframework.stereotype.Service;
+
+@Service
+public class DatabasePayloadEventHandler implements PayloadEventHandler {
+
+    @Override
+    public void handleEvent(CustomPayloadEvent event) {
+        System.out.println("Saving to Database: " + event);
+        // Implement database logic (JPA, JDBC, etc.)
+    }
+}
