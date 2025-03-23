@@ -1,0 +1,31 @@
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class CustomPayloadMonitoringController {
+
+    @MonitorCustomPayload("kafka")  // Sends data to Kafka
+    @PostMapping("/send-kafka")
+    public String sendToKafka(@RequestBody CustomPayload payload) {
+        return "Sent to Kafka: " + payload.getContent();
+    }
+
+    @MonitorCustomPayload("database")  // Saves data to Database
+    @PostMapping("/save-db")
+    public String saveToDatabase(@RequestBody CustomPayload payload) {
+        return "Saved to DB: " + payload.getContent();
+    }
+
+    @MonitorCustomPayload("logging")  // Logs data
+    @PostMapping("/log")
+    public String logPayload(@RequestBody CustomPayload payload) {
+        return "Logged: " + payload.getContent();
+    }
+}
+
+class CustomPayload {
+    private String content;
+    public CustomPayload() {}
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+}
