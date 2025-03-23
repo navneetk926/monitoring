@@ -1,0 +1,15 @@
+public class CustomPayloadEvent {
+    private String endpoint;
+    private String method;
+    private Object payload;
+    private long timestamp;
+
+    public CustomPayloadEvent(String endpoint, String method, Object payload) {
+        this.endpoint = endpoint;
+        this.method = method;
+        this.payload = payload;
+        this.timestamp = System.currentTimeMillis();
+    }
+
+    // Getters & Setters
+}
