@@ -1,0 +1,52 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+
+@Aspect
+@Component
+public class CustomPayloadMonitorAspect {
+    private final PayloadEventHandlerFactory eventHandlerFactory;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public CustomPayloadMonitorAspect(PayloadEventHandlerFactory eventHandlerFactory) {
+        this.eventHandlerFactory = eventHandlerFactory;
+    }
+
+    @Around("@annotation(MonitorCustomPayload)")
+    public Object monitorPayload(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = 
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String endpoint = request.getRequestURI();
+        String method = request.getMethod();
+
+        // Extract annotation details
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method targetMethod = signature.getMethod();
+        MonitorCustomPayload annotation = targetMethod.getAnnotation(MonitorCustomPayload.class);
+        String handlerType = annotation.value();
+
+        Object payload = (joinPoint.getArgs().length > 0) ? joinPoint.getArgs()[0] : null;
+        Object response = joinPoint.proceed();  // Execute API method
+
+        CustomPayloadEvent event = new CustomPayloadEvent(endpoint, method, payload);
+        handleEventAsync(handlerType, event);
+
+        return response;
+    }
+
+    @Async
+    public void handleEventAsync(String handlerType, CustomPayloadEvent event) {
+        PayloadEventHandler handler = eventHandlerFactory.getHandler(handlerType);
+        handler.handleEvent(event);
+    }
+}
