@@ -1,0 +1,20 @@
+import org.springframework.stereotype.Component;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class PayloadEventHandlerFactory {
+    private final Map<String, PayloadEventHandler> handlers = new HashMap<>();
+
+    public PayloadEventHandlerFactory(KafkaPayloadEventHandler kafkaHandler,
+                                      DatabasePayloadEventHandler dbHandler,
+                                      LoggingPayloadEventHandler logHandler) {
+        handlers.put("kafka", kafkaHandler);
+        handlers.put("database", dbHandler);
+        handlers.put("logging", logHandler);
+    }
+
+    public PayloadEventHandler getHandler(String type) {
+        return handlers.getOrDefault(type, new LoggingPayloadEventHandler());  // Default to logging
+    }
+}
