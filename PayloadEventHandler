@@ -1,0 +1,3 @@
+public interface PayloadEventHandler {
+    void handleEvent(CustomPayloadEvent event);
+}
