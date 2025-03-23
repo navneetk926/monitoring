@@ -1,0 +1,18 @@
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class KafkaPayloadEventHandler implements PayloadEventHandler {
+    private final KafkaTemplate<String, CustomPayloadEvent> kafkaTemplate;
+    private static final String TOPIC = "custom-payload-events";
+
+    public KafkaPayloadEventHandler(KafkaTemplate<String, CustomPayloadEvent> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    @Override
+    public void handleEvent(CustomPayloadEvent event) {
+        kafkaTemplate.send(TOPIC, event);
+        System.out.println("Sent to Kafka: " + event);
+    }
+}
